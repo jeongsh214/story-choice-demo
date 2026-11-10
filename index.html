@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101216">
+  <meta name="description" content="선택지 1·2·3과 성공 확률을 직접 체험하는 짧은 스토리 시뮬레이션. 당신의 선택을 기록해 보세요.">
+  <title>어느 날의 기록 · 선택형 스토리 게임</title>
+  <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./game.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./" aria-label="어느 날의 기록 홈">
+      <img src="./assets/favicon.svg" width="38" height="38" alt="">
+      <span><strong>어느 날의 기록</strong><small>A STORY OF YOUR CHOICES</small></span>
+    </a>
+    <div class="header-meta"><span class="demo-tag">체험판</span><span class="header-note">아직 쓰이지 않은 이야기</span></div>
+    <button class="icon-button" id="settings-open" type="button" title="설정" aria-label="설정">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 3-.6 2.5-2 .9L4 5.7 2 9l1.8 1.8v2.4L2 15l2 3.3 2.4-.7 2 .9L9 21h4l.6-2.5 2-.9 2.4.7 2-3.3-1.8-1.8v-2.4L20 9l-2-3.3-2.4.7-2-.9L13 3Z"/><circle cx="11" cy="12" r="3"/></svg>
+    </button>
+  </header>
+
+  <div class="game-shell">
+    <aside class="sidebar" aria-label="인물 상태">
+      <div class="sidebar-heading"><span class="eyebrow">YOUR CHARACTER</span><span class="tiny-star">✧</span></div>
+      <div class="character-card">
+        <div class="avatar" aria-hidden="true"><svg viewBox="0 0 80 80"><path d="M40 11 65 25v30L40 69 15 55V25Z"/><circle cx="40" cy="31" r="9"/><path d="M23 56c2-13 32-13 34 0"/></svg></div>
+        <h1 id="character-name">이름 없는 여행자</h1>
+        <p>당신의 이야기를 기다리는 중</p>
+        <div class="character-location"><span class="status-dot"></span>시작의 거리 <span class="location-divider">/</span> 여행자</div>
+      </div>
+      <details class="stats-details" open>
+        <summary>현재 상태 <span>접기 / 펼치기</span></summary>
+        <div id="stats" class="stats"></div>
+      </details>
+      <div class="journey-card">
+        <span class="eyebrow">이번 이야기</span>
+        <div class="journey-line"><span>지나온 선택</span><strong id="choice-count">0</strong></div>
+        <div class="journey-line"><span>성공한 선택</span><strong id="success-count">0</strong></div>
+        <div class="journey-dots" id="journey-dots" aria-label="총 5번의 선택"></div>
+      </div>
+      <div class="sidebar-bottom"><span class="save-indicator" id="save-indicator"><span class="status-dot"></span>이 브라우저에 자동 저장</span><button class="text-button" id="restart-open" type="button">처음부터 다시 시작 <span aria-hidden="true">↗</span></button></div>
+    </aside>
+
+    <main class="main-area" id="main-content">
+      <div class="time-toolbar">
+        <div class="time-info"><span class="day-label" id="day-label">1일차</span><span class="time-separator"></span><span id="time-label">오전 8:00</span><span class="phase-indicator" id="phase-indicator">선택 대기</span></div>
+        <div class="playback-controls"><div class="speed-buttons" role="group" aria-label="진행 배속"><button type="button" data-speed="1" aria-pressed="true">1×</button><button type="button" data-speed="2" aria-pressed="false">2×</button><button type="button" data-speed="4" aria-pressed="false">4×</button></div><button id="pause-button" class="pause-button" type="button" disabled>시간 정지</button></div>
+      </div>
+      <div class="time-track"><div id="time-progress"></div></div>
+
+      <div class="story-wrap">
+        <div class="chapter-line"><span id="chapter-label">CHAPTER 01</span><span class="chapter-rule"></span><span id="episode-label">첫 번째 기록</span></div>
+        <section class="event-section" id="event-section" aria-labelledby="event-title">
+          <p class="event-kicker" id="event-kicker">새로운 하루가 시작됩니다</p>
+          <h2 id="event-title" tabindex="-1">이야기의 첫 페이지</h2>
+          <div id="event-body" class="event-body"></div>
+        </section>
+
+        <section id="choices-section" class="choices-section" aria-label="선택지">
+          <div class="choices-heading"><span><span class="small-diamond" aria-hidden="true">◇</span> 어떤 선택을 하시겠습니까?</span><span>선택 중에는 시간이 멈춥니다</span></div>
+          <div id="choices" class="choices"></div>
+          <p class="choice-help"><span aria-hidden="true">↳</span> 오른쪽 숫자는 현재 선택의 실제 성공 확률입니다.</p>
+        </section>
+
+        <section id="result-panel" class="result-panel" hidden aria-labelledby="result-title" aria-live="polite"></section>
+        <section id="travel-panel" class="travel-panel" hidden aria-live="polite"><div class="travel-mark" aria-hidden="true">✧</div><h3>시간이 흘러갑니다</h3><p id="travel-message">다음 사건을 기다리고 있습니다.</p><div class="travel-track"><div id="travel-progress"></div></div></section>
+        <section id="ending-panel" class="ending-panel" hidden aria-labelledby="ending-title"></section>
+
+        <section class="history-section" aria-label="지나온 기록">
+          <div class="history-heading"><h3>지나온 기록</h3><span id="record-count">0개의 기록</span></div>
+          <div id="history" class="history"></div>
+        </section>
+        <footer class="story-footer"><span>어느 날의 기록</span><span>임시 스토리 · 선택과 확률 체험 버전</span></footer>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="settings-dialog" class="modal">
+    <form id="settings-form">
+      <div class="modal-heading"><h2>설정</h2><button type="button" class="icon-button close-dialog" aria-label="설정 닫기">×</button></div>
+      <label for="player-name">기록에 남길 이름</label><input id="player-name" name="playerName" maxlength="20" placeholder="이름 없는 여행자" autocomplete="off">
+      <label for="font-size">이야기 글씨 크기</label><select id="font-size" name="fontSize"><option value="normal">보통</option><option value="large">크게</option></select>
+      <p class="modal-note">진행 상황은 현재 브라우저에 자동 저장됩니다. 다시 방문하면 이어서 플레이할 수 있습니다.</p>
+      <button class="primary-button" type="submit">설정 저장</button>
+      <button class="settings-restart text-button" id="settings-restart" type="button">현재 이야기 처음부터 다시 시작 <span aria-hidden="true">↗</span></button>
+    </form>
+  </dialog>
+  <dialog id="restart-dialog" class="modal">
+    <div class="modal-heading"><h2>새로운 기록을 시작할까요?</h2></div>
+    <p class="modal-note">현재 이야기가 초기화됩니다. 이름과 글씨 크기 설정은 유지됩니다.</p>
+    <div class="dialog-actions"><button id="restart-cancel" type="button" class="secondary-button">이어서 하기</button><button id="restart-confirm" type="button" class="primary-button">새로 시작</button></div>
+  </dialog>
+  <div class="toast" id="toast" role="status" hidden></div>
+  <noscript><p class="noscript">이 게임을 플레이하려면 브라우저에서 JavaScript를 켜 주세요.</p></noscript>
+</body>
+</html>
